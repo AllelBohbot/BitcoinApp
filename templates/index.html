@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Value Tracker</title>
+</head>
+<body>
+    <h1>Bitcoin Value Tracker</h1>
+    <p id="bitcoinValue">Loading...</p>
+    <p id="averageValue">Average: Loading...</p>
+
+     <script>
+        function updateBitcoinValue() {
+            fetch('/service-a/get_bitcoin_value')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const currentBitcoinValue = data.current_value;
+                    document.getElementById('bitcoinValue').innerText = 'Current Bitcoin Value: $' + currentBitcoinValue;
+
+                    // Update average value
+                    fetch('/service-a/get_average_value')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(averageData => {
+                            const averageBitcoinValue = averageData.average_value;
+                            document.getElementById('averageValue').innerText = 'Average Bitcoin Value: $' + averageBitcoinValue;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching average value:', error);
+                        });
+                })
+                .catch(error => {
+                    console.error('Error fetching current Bitcoin value:', error);
+                });
+        }
+
+        // Initial update
+        updateBitcoinValue();
+
+        // Update every minute
+        setInterval(updateBitcoinValue, 60000);
+    </script>
+
+
+</body>
+</html>
